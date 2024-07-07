@@ -16,7 +16,7 @@ location = "europe-west4"
 display_name = "pioneering-flow-199508-mnist-keras"
 trainer_script_filepath = None
 container_uri = "europe-docker.pkg.dev/vertex-ai/training/tf-gpu.2-13.py310:latest"  # "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-14.py310:latest"
-bucket_name = "pioneering-flow-199508-c8713b72-1476-4bad-b6f1-bf6a47ca9926"
+bucket_name = None  # "pioneering-flow-199508-c8713b72-1476-4bad-b6f1-bf6a47ca9926"
 if not bucket_name:
     UUID = uuid.uuid4()
     print(UUID)
