@@ -5,22 +5,23 @@ from google.oauth2.service_account import Credentials
 from loguru import logger
 from utils import get_credential, get_key_filepath, get_trainer_script_filepath
 
-key_filepath = None
-project_id = "pioneering-flow-199508"
-
 
 class BigQuerist(Base):
     credentials: Credentials
     project_id: str
+    location: str
     df: pd.DataFrame
 
-    def __init__(self, credentials: Credentials, project_id: str):
+    def __init__(self, credentials: Credentials, project_id: str, location: str):
         self.credentials = credentials
         self.project_id = project_id
+        self.location = location
 
     def apply(self, sql: str) -> pd.DataFrame:
         bq_client = bigquery.Client(
-            project=self.project_id, credentials=self.credentials
+            project=self.project_id,
+            credentials=self.credentials,
+            location=self.location,
         )
         job_config = bigquery.QueryJobConfig()
         client_result = bq_client.query(sql, job_config=job_config)
@@ -44,10 +45,14 @@ LIMIT 3
 
 
 def main():
+    key_filepath = None
+    project_id = "pioneering-flow-199508"
+    location = None
+
     credentials = get_credential(get_key_filepath(key_filepath))
     logger.info(f"Credentials: {credentials}")
 
-    bqr = BigQuerist(credentials, project_id)
+    bqr = BigQuerist(credentials, project_id, location)
     df = bqr.apply(INSPECT_QUERY)
     logger.debug(df.head())
     bqr.release()
