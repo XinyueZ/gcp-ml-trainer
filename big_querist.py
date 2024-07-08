@@ -2,6 +2,7 @@ import pandas as pd
 from base import Base
 from google.cloud import bigquery
 from google.oauth2.service_account import Credentials
+from loguru import logger
 from utils import get_credential, get_key_filepath, get_trainer_script_filepath
 
 key_filepath = None
@@ -11,6 +12,7 @@ project_id = "pioneering-flow-199508"
 class BigQuerist(Base):
     credentials: Credentials
     project_id: str
+    df: pd.DataFrame
 
     def __init__(self, credentials: Credentials, project_id: str):
         self.credentials = credentials
@@ -24,8 +26,12 @@ class BigQuerist(Base):
         client_result = bq_client.query(sql, job_config=job_config)
         job_id = client_result.job_id
         df = client_result.result().to_arrow().to_pandas()
-        print(f"Finished job_id: {job_id}")
+        logger.info(f"Finished job_id: {job_id}")
+        self.df = df
         return df
+
+    def release(self):
+        del self.df
 
 
 INSPECT_QUERY = """
@@ -39,12 +45,12 @@ LIMIT 3
 
 def main():
     credentials = get_credential(get_key_filepath(key_filepath))
-    print(f"credentials: {credentials}")
+    logger.info(f"Credentials: {credentials}")
 
     bqr = BigQuerist(credentials, project_id)
     df = bqr.apply(INSPECT_QUERY)
-    print(df.head())
-    return df
+    logger.debug(df.head())
+    bqr.release()
 
 
 if __name__ == "__main__":

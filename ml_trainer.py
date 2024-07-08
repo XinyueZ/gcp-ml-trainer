@@ -9,6 +9,7 @@ from google.cloud import aiplatform, storage
 from google.cloud.aiplatform import CustomTrainingJob
 from google.cloud.aiplatform.models import Model
 from google.oauth2.service_account import Credentials
+from loguru import logger
 from utils import get_credential, get_key_filepath, get_trainer_script_filepath
 
 # %% args############################
@@ -21,7 +22,7 @@ container_uri = "europe-docker.pkg.dev/vertex-ai/training/tf-gpu.2-13.py310:late
 bucket_name = "pioneering-flow-199508-c8713b72-1476-4bad-b6f1-bf6a47ca9926"
 if not bucket_name:
     UUID = uuid.uuid4()
-    print(UUID)
+    logger.info(UUID)
     bucket_name = f"{project_id}-{UUID}"
 
 
@@ -30,6 +31,7 @@ class Trainer(Base):
     credentials: Credentials
     project_id: str
     bucket: storage.Bucket
+    model: Model
 
     def __init__(self, credentials: Credentials, project_id: str):
         self.credentials = credentials
@@ -57,26 +59,29 @@ class Trainer(Base):
             location=location,
         )
         model = train_job.run()
+        self.model = model
         return model
 
     def release(self):
+        del self.model
         self.bucket.delete(force=True)
+        del self.bucket
 
 
 def main():
     credentials = get_credential(get_key_filepath(key_filepath))
-    print(f"Credentials: {credentials}")
+    logger.info(f"Credentials: {credentials}")
 
     aiplatform.init(project=project_id, credentials=credentials)
-    print("Initialized AI Platform")
+    logger.info("Initialized AI Platform")
 
     trainer = Trainer(credentials, project_id)
     model = trainer.apply()
-    print(model)
+    logger.info(model)
 
     trainer.release()
-    print("Released resources")
+    logger.info("Released resources")
 
- 
+
 if __name__ == "__main__":
     main()
