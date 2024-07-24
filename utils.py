@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
 from google.oauth2.service_account import Credentials
+from icecream import ic
 
 
 def get_datetime_now() -> str:
@@ -20,6 +21,7 @@ def get_credential(key_path: str) -> Credentials:
     )
 
     if credentials.expired:
+        ic("Credentials expired. Refreshing...")
         credentials.refresh(Request())
     return credentials
 
