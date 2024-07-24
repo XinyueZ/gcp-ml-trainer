@@ -60,8 +60,12 @@ class DsPusher(Base):
 
 """
 python ds_pusher.py  --project_id "isochrone-isodistance" \
-                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/ft_train_wine_price-21:23:07:2024.jsonl \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-21:24:07:2024.jsonl \
                      --bucket_name_postfix "train"
+
+python ds_pusher.py  --project_id "isochrone-isodistance" \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-21:24:07:2024.jsonl \
+                     --bucket_name_postfix "val"
 """
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -99,5 +103,5 @@ if __name__ == "__main__":
     )
     blob = dp.apply()
     ic(blob)
-    ic(bloc.public_url)
+    ic(blob.public_url)
     dp.release()

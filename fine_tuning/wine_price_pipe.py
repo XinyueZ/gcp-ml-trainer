@@ -18,14 +18,14 @@ from utils import get_datetime_now
 
 if __name__ == "__main__":
     data_url = "https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ"
-    output_dir = os.path.join(this_file_dir_parent_dir, "tmp")
+    dataset_output_dir = os.path.join(this_file_dir_parent_dir, "tmp")
 
     tsmp = get_datetime_now()
     num_data_to_use = 1000
 
-    train_filename = "ft_train_wine_price-{}.jsonl".format(tsmp)
-    val_filename = "ft_eval_wine_price-{}.jsonl".format(tsmp)
-    ic(train_filename), ic(val_filename)
+    train_set_filename = "ft_train_wine_price-{}.jsonl".format(tsmp)
+    val_set_filename = "ft_val_wine_price-{}.jsonl".format(tsmp)
+    ic(train_set_filename), ic(val_set_filename)
 
     data_proc = WinePriceGeminiChatDatasetProcessor(
         csv_url=data_url,
@@ -33,9 +33,9 @@ if __name__ == "__main__":
         sys_prompt=SYS_PROMPT,
         human_prompt=HUMAN_PROMPT,
         ai_prompt=AI_PROMPT,
-        output_dir=output_dir,
-        train_filename=train_filename,
-        val_filename=val_filename,
+        output_dir=dataset_output_dir,
+        train_set_filename=train_set_filename,
+        val_set_filename=val_set_filename,
     )
     data_proc.apply()
     data_proc.release()

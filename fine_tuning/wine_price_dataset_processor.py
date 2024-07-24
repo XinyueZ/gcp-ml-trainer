@@ -28,12 +28,12 @@ class WinePriceGeminiChatDatasetProcessor(GeminiChatDatasetProcessor):
         human_prompt: str,
         ai_prompt: str,
         output_dir: str,
-        train_filename: str,
-        val_filename: str,
+        train_set_filename: str,
+        val_set_filename: str,
         test_size=0.2,
         random_state=42,
     ):
-        super().__init__(sys_prompt, output_dir, train_filename, val_filename)
+        super().__init__(sys_prompt, output_dir, train_set_filename, val_set_filename)
         model_name = "gemini"
         mode = "chat"
 

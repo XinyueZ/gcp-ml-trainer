@@ -29,17 +29,29 @@ class BaseProcessor(Base):
 
 class GeminiChatDatasetProcessor(BaseProcessor):
     def __init__(
-        self, sys_prompt: str, output_dir: str, train_filename: str, val_filename: str
+        self,
+        sys_prompt: str,
+        output_dir: str,
+        train_set_filename: str,
+        val_set_filename: str,
     ):
         model_name = "gemini"
         mode = "chat"
         self.sys_prompt = sys_prompt
 
-        train_output_filename = "{0}_{1}_{2}".format(model_name, mode, train_filename)
-        val_output_filename = "{0}_{1}_{2}".format(model_name, mode, val_filename)
+        train_set_output_filename = "{0}_{1}_{2}".format(
+            model_name, mode, train_set_filename
+        )
+        val_set_output_filename = "{0}_{1}_{2}".format(
+            model_name, mode, val_set_filename
+        )
 
-        self.train_output_filefullpath = os.path.join(output_dir, train_output_filename)
-        self.val_output_filefullpath = os.path.join(output_dir, val_output_filename)
+        self.train_set_output_filefullpath = os.path.join(
+            output_dir, train_set_output_filename
+        )
+        self.val_set_output_filefullpath = os.path.join(
+            output_dir, val_set_output_filename
+        )
 
     def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
         """
@@ -77,8 +89,8 @@ class GeminiChatDatasetProcessor(BaseProcessor):
 
     def apply(self):
         self.df_train, self.df_val = self.create_df()
-        self.create_jsonl(self.df_train, self.train_output_filefullpath)
-        self.create_jsonl(self.df_val, self.val_output_filefullpath)
+        self.create_jsonl(self.df_train, self.train_set_output_filefullpath)
+        self.create_jsonl(self.df_val, self.val_set_output_filefullpath)
 
     def release(self):
         del self.df_train
