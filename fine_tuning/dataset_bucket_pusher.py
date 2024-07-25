@@ -46,7 +46,7 @@ class DatasetBucketPusher(Base):
 
     def _push2bucket(self):
         self.bucket = self._create_bucket()
-        self.blob = self.bucket.blob(self.file_fullpath)
+        self.blob = self.bucket.blob(os.path.basename(self.file_fullpath))
         self.blob.upload_from_filename(self.file_fullpath)
 
     def apply(self) -> storage.Blob:
@@ -60,19 +60,19 @@ class DatasetBucketPusher(Base):
 
 """
 python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
-                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-21:24:07:2024.jsonl \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-12:25:07:2024.jsonl \
                      --bucket_name_postfix "train"
 
 python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
-                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-21:24:07:2024.jsonl \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-12:25:07:2024.jsonl \
                      --bucket_name_postfix "val"
 
 python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
-                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_train_wine_price-10:25:07:2024.jsonl \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_train_wine_price-11:25:07:2024.jsonl \
                      --bucket_name_postfix "train"
 
 python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
-                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_val_wine_price-10:25:07:2024.jsonl \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_val_wine_price-11:25:07:2024.jsonl \
                      --bucket_name_postfix "val"
 """
 if __name__ == "__main__":
