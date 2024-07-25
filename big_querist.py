@@ -3,7 +3,7 @@ from base import Base
 from google.cloud import bigquery
 from google.oauth2.service_account import Credentials
 from loguru import logger
-from utils import get_credential, get_key_filepath, get_trainer_script_filepath
+from utils import get_credential, get_key_filepath
 
 
 class BigQuerist(Base):

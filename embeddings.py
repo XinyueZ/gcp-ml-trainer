@@ -19,7 +19,7 @@ from base import Base
 from loguru import logger
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm.auto import tqdm
-from utils import get_credential, get_key_filepath, get_trainer_script_filepath
+from utils import get_credential, get_key_filepath
 from vertexai.language_models import TextEmbeddingModel
 
 
