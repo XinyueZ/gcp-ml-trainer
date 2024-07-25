@@ -17,7 +17,7 @@ from base import Base
 from utils import get_credential, get_key_filepath
 
 
-class DsPusher(Base):
+class DatasetBucketPusher(Base):
 
     def __init__(
         self,
@@ -41,7 +41,7 @@ class DsPusher(Base):
         bucket = storage_client.lookup_bucket(self.bucket_name)
         if not bucket:
             bucket = storage_client.bucket(self.bucket_name)
-            bucket.create(location=self.location)
+            bucket.create(location=self.location, predefined_acl="publicRead")
         return bucket
 
     def _push2bucket(self):
@@ -59,12 +59,20 @@ class DsPusher(Base):
 
 
 """
-python ds_pusher.py  --project_id "isochrone-isodistance" \
+python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-21:24:07:2024.jsonl \
                      --bucket_name_postfix "train"
 
-python ds_pusher.py  --project_id "isochrone-isodistance" \
+python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-21:24:07:2024.jsonl \
+                     --bucket_name_postfix "val"
+
+python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_train_wine_price-10:25:07:2024.jsonl \
+                     --bucket_name_postfix "train"
+
+python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_val_wine_price-10:25:07:2024.jsonl \
                      --bucket_name_postfix "val"
 """
 if __name__ == "__main__":
@@ -94,7 +102,7 @@ if __name__ == "__main__":
     credentials = get_credential(get_key_filepath(key_dir=args.key_dir))
     ic(f"Credentials: {credentials}")
 
-    dp = DsPusher(
+    dp = DatasetBucketPusher(
         args.project_id,
         args.location,
         bucket_name,

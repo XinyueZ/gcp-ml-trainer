@@ -54,8 +54,8 @@ class FineTuner(Base):
         }
 
         if model_mode == "text":
-            pipeline_arguments["evaluation_interval"] = evaluation_interval
-            pipeline_arguments["evaluation_data_uri"] = evaluation_data_uri
+            self.pipeline_arguments["evaluation_interval"] = evaluation_interval
+            self.pipeline_arguments["evaluation_data_uri"] = evaluation_data_uri
 
         self.job = PipelineJob(
             template_path=kfp_template_path,
@@ -75,6 +75,7 @@ class FineTuner(Base):
 
 
 """ 
+# fine tune Gemini chat
 python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-002" \
                     --location "europe-west4" \
                     --project_id "isochrone-isodistance" \
@@ -88,6 +89,20 @@ python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-002" 
                     --pipeline_root "gs://awesome-ml-ai/" \
                     --enable_caching 1 \
                     --model_mode "chat" 
+# fine tune text bison
+python trainer.py   --model_display_name "gcp_ft_wine_price_text-bison@001" \
+                    --location "europe-west4" \
+                    --project_id "isochrone-isodistance" \
+                    --llm "text-bison@001" \
+                    --accelerator_type "GPU" \
+                    --kfp_template_path "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0" \
+                    --dataset_uri "https://storage.googleapis.com/isochrone-isodistance-2a32a7a6-train//teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison%40001_text_ft_train_wine_price-11%3A25%3A07%3A2024.jsonl" \
+                    --training_steps 1 \
+                    --evaluation_interval 1 \
+                    --evaluation_data_uri "https://storage.googleapis.com/isochrone-isodistance-14d6af55-val//teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison%40001_text_ft_val_wine_price-11%3A25%3A07%3A2024.jsonl" \
+                    --pipeline_root "gs://awesome-ml-ai/" \
+                    --enable_caching 1 \
+                    --model_mode "text" 
 """
 if __name__ == "__main__":
     # Tuning page: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning?hl=en
