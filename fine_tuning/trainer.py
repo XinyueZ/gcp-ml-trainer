@@ -75,10 +75,10 @@ class FineTuner(Base):
 
 
 """ 
-python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-001" \
+python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-002" \
                     --location "europe-west4" \
                     --project_id "isochrone-isodistance" \
-                    --llm "gemini-1.0-pro-001" \
+                    --llm "gemini-1.0-pro-002" \
                     --accelerator_type "TPU" \
                     --kfp_template_path "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0" \
                     --dataset_uri "gs://isochrone-isodistance-ff943708-train//teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-21:24:07:2024.jsonl" \
@@ -90,9 +90,12 @@ python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-001" 
                     --model_mode "chat" 
 """
 if __name__ == "__main__":
+    # Tuning page: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning?hl=en
     # text tune pipeline：https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0
     # chat tune pipeline：https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0
     # doc: https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-code-models?hl=zh-cn
+    # model list: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions
+    # price: https://cloud.google.com/vertex-ai/generative-ai/pricing
     # llm = "gemini-1.0-pro-002"  # ? not yet avaiable at gcp: "gemini-1.5-flash"
 
     parser = argparse.ArgumentParser()

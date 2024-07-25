@@ -16,6 +16,10 @@ class Base:
 
 
 class BaseProcessor(Base):
+    df_train: pd.DataFrame
+    df_val: pd.DataFrame
+    train_set_output_filefullpath: str
+    val_set_output_filefullpath: str
 
     def create_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         raise NotImplementedError
@@ -23,8 +27,50 @@ class BaseProcessor(Base):
     def create_jsonl(self, df: pd.DataFrame, filefullpath: str) -> str:
         raise NotImplementedError
 
-    def apply(self, inputs):
-        raise NotImplementedError
+    def apply(self):
+        self.df_train, self.df_val = self.create_df()
+        self.create_jsonl(self.df_train, self.train_set_output_filefullpath)
+        self.create_jsonl(self.df_val, self.val_set_output_filefullpath)
+
+    def release(self):
+        del self.df_train
+        del self.df_val
+
+
+class TextBisonTextDatasetProcessor(BaseProcessor):
+    def __init__(
+        self,
+        output_dir: str,
+        train_set_filename: str,
+        val_set_filename: str,
+    ):
+        model_name = "text-bison@001"
+        mode = "text"
+
+        train_set_output_filename = "{0}_{1}_{2}".format(
+            model_name, mode, train_set_filename
+        )
+        val_set_output_filename = "{0}_{1}_{2}".format(
+            model_name, mode, val_set_filename
+        )
+
+        self.train_set_output_filefullpath = os.path.join(
+            output_dir, train_set_output_filename
+        )
+        self.val_set_output_filefullpath = os.path.join(
+            output_dir, val_set_output_filename
+        )
+
+    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+        """
+        ....
+        {"input_text": "hello", "output_text": "world"}
+        ....
+        """
+        cols = ["input_text", "output_text"]
+        tune_jsonl = df[cols].to_json(orient="records", lines=True)
+        with open(filefullpath, "w") as f:
+            f.write(tune_jsonl)
 
 
 class GeminiChatDatasetProcessor(BaseProcessor):
@@ -86,12 +132,3 @@ class GeminiChatDatasetProcessor(BaseProcessor):
                 ),
                 axis=1,
             )
-
-    def apply(self):
-        self.df_train, self.df_val = self.create_df()
-        self.create_jsonl(self.df_train, self.train_set_output_filefullpath)
-        self.create_jsonl(self.df_val, self.val_set_output_filefullpath)
-
-    def release(self):
-        del self.df_train
-        del self.df_val
