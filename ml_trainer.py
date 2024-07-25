@@ -50,7 +50,7 @@ class Trainer(Base):
         bucket = storage_client.lookup_bucket(self.bucket_name)
         if not bucket:
             bucket = storage_client.bucket(self.bucket_name)
-            bucket.create(location=self.location)
+            bucket.create(location=self.location, predefined_acl="publicRead")
         self.bucket = bucket
         return bucket
 
