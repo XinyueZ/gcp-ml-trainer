@@ -12,7 +12,7 @@ sys.path.append(this_file_dir)
 sys.path.append(this_file_dir_parent_dir)
 from base import TextBisonTextDatasetProcessor
 
-HUMAN_PROMPT = """How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
+HUMAN_PROMPT = """You are a super assistant that will be asked to help with the wine price prediction: How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
 AI_PROMPT = """{0} US$"""
 
 

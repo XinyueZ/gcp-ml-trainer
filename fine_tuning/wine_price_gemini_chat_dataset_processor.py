@@ -16,7 +16,7 @@ SYS_PROMPT = (
     "You are a super assistant. You are asked to help with the wine price prediction."
 )
 HUMAN_PROMPT = """How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
-AI_PROMPT = """{0} US$."""
+AI_PROMPT = """{0} US$"""
 
 
 class WinePriceGeminiChatDatasetProcessor(GeminiChatDatasetProcessor):
