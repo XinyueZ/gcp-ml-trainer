@@ -43,6 +43,9 @@ class WinePriceGeminiChatDatasetProcessor(GeminiChatDatasetProcessor):
         self.csv_url = csv_url
         self.num_data_to_use = num_data_to_use
 
+        self.test_size = test_size
+        self.random_state = random_state
+
     def _create_insturct_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         df["input_text"] = df.apply(
             lambda row: self.human_prompt.format(
@@ -64,7 +67,9 @@ class WinePriceGeminiChatDatasetProcessor(GeminiChatDatasetProcessor):
         df = df.reset_index(drop=True)
         df = df[df["country"] == "US"]
         df = df.head(self.num_data_to_use)
-        train_df, eval_df = train_test_split(df, test_size=0.2, random_state=42)
+        train_df, eval_df = train_test_split(
+            df, test_size=self.test_size, random_state=self.random_state
+        )
         train_df = self._create_insturct_columns(train_df)
         eval_df = self._create_insturct_columns(eval_df)
         ic(len(train_df), len(eval_df))
