@@ -11,29 +11,35 @@ this_file_dir = os.path.dirname(os.path.abspath(__file__))
 this_file_dir_parent_dir = os.path.dirname(this_file_dir)
 sys.path.append(this_file_dir)
 sys.path.append(this_file_dir_parent_dir)
-from base import TextBisonDatasetProcessor
+from base import ChatBisonDatasetProcessor
 
-INPUT_TEXT_PROMPT = """You are a super assistant that will be asked to help with the wine price prediction: How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
-OUTPUT_TEXT_PROMPT = """{0} US$"""
+CONTEXT_PROMPT = (
+    "You are a super assistant. You are asked to help with the wine price prediction."
+)
+USER_PROMPT = """How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
+ASSISTANT_PROMPT = """{0} US$"""
 
 
-class WinePriceTextBisonDatasetProcessor(TextBisonDatasetProcessor):
+class WinePriceChatBisonDatasetProcessor(ChatBisonDatasetProcessor):
     def __init__(
         self,
         csv_url: str,
         num_data_to_use: int,
-        input_text_prompt: str,
-        output_text_prompt: str,
+        context_prompt: str,
+        user_prompt: str,
+        assistant_prompt: str,
         output_dir: str,
         train_set_filename: str,
         val_set_filename: str,
         test_size=0.2,
         random_state=42,
     ):
-        super().__init__(output_dir, train_set_filename, val_set_filename)
+        super().__init__(
+            context_prompt, output_dir, train_set_filename, val_set_filename
+        )
 
-        self.input_text_prompt = input_text_prompt
-        self.output_text_prompt = output_text_prompt
+        self.user_prompt = user_prompt
+        self.assistant_prompt = assistant_prompt
 
         self.csv_url = csv_url
         self.num_data_to_use = num_data_to_use
@@ -43,13 +49,13 @@ class WinePriceTextBisonDatasetProcessor(TextBisonDatasetProcessor):
 
     def _create_insturct_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         df["input_text"] = df.apply(
-            lambda row: self.input_text_prompt.format(
+            lambda row: self.user_prompt.format(
                 row["province"], row["country"], row["description"]
             ),
             axis=1,
         )
         df["output_text"] = df.apply(
-            lambda row: self.output_text_prompt.format(row["price"]), axis=1
+            lambda row: self.assistant_prompt.format(row["price"]), axis=1
         )
         return df
 
@@ -70,31 +76,46 @@ class WinePriceTextBisonDatasetProcessor(TextBisonDatasetProcessor):
         ic(len(train_df), len(eval_df))
         return train_df, eval_df
 
-"""
-python wine_price_text_bison_dataset_processor.py \
+
+"""Full args with \ for each arg input
+python wine_price_chat_bison_dataset_processor.py \
     --csv_url "https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ" \
     --num_data_to_use 1000 \
-    --input_text_prompt "You are a super assistant that will be asked to help with the wine price prediction: How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'" \
-    --output_text_prompt "{0} US$" \
+    --context_prompt "You are a super assistant. You are asked to help with the wine price prediction." \
+    --user_prompt "How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'" \
+    --assistant_prompt "{0} US$" \
     --output_dir "/teamspace/studios/this_studio/gcp-ml-trainer/tmp" \
-    --train_set_filename "ft_train_wine_price-21:24:07:2024.jsonl" \
-    --val_set_filename "ft_val_wine_price-21:24:07:2024.jsonl" \
+    --train_set_filename "ft_train_wine_price.jsonl" \
+    --val_set_filename "ft_val_wine_price.jsonl" \
     --test_size 0.2 \
-    --random_state 42
+    --random_state 42 \
 
 to subprocess call:
-subprocess.run([
-    'python', 'wine_price_text_bison_dataset_processor.py',
-    '--csv_url', 'https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ',
-    '--num_data_to_use', '1000',
-    '--input_text_prompt', 'You are a super assistant that will be asked to help with the wine price prediction: How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as \'{2}\'',
-    '--output_text_prompt', '{0} US$',
-    '--output_dir', '/teamspace/studios/this_studio/gcp-ml-trainer/tmp',
-    '--train_set_filename', 'ft_train_wine_price-21:24:07:2024.jsonl',
-    '--val_set_filename', 'ft_val_wine_price-21:24:07:2024.jsonl',
-    '--test_size', '0.2',
-    '--random_state', '42',
-])
+subprocess.run(
+   [
+         "python",
+            "wine_price_chat_bison_dataset_processor.py",
+            "--csv_url",
+            "https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ",
+            "--num_data_to_use",
+            "1000",
+            "--context_prompt",
+            "You are a super assistant. You are asked to help with the wine price prediction.",
+            "--user_prompt",
+            "How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'",
+            "--assistant_prompt",
+            "{0} US$",
+            "--output_dir",
+            "tmp",
+            "--train_set_filename",
+            "ft_train_wine_price.jsonl",
+            "--val_set_filename",
+            "ft_val_wine_price.jsonl",
+            "--test_size",
+            "0.2",
+            "--random_state",
+            "42",
+   ] 
 """
 if __name__ == "__main__":
     ic(sys.argv)
@@ -110,14 +131,19 @@ if __name__ == "__main__":
         default=1000,
     )
     parser.add_argument(
-        "--input_text_prompt",
+        "--context_prompt",
         type=str,
-        default=INPUT_TEXT_PROMPT,
+        default=CONTEXT_PROMPT,
     )
     parser.add_argument(
-        "--output_text_prompt",
+        "--user_prompt",
         type=str,
-        default=OUTPUT_TEXT_PROMPT,
+        default=USER_PROMPT,
+    )
+    parser.add_argument(
+        "--assistant_prompt",
+        type=str,
+        default=ASSISTANT_PROMPT,
     )
     parser.add_argument(
         "--output_dir",
@@ -147,11 +173,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     ic(args)
 
-    data_proc = WinePriceTextBisonDatasetProcessor(
+    data_proc = WinePriceChatBisonDatasetProcessor(
         csv_url=args.csv_url,
         num_data_to_use=args.num_data_to_use,
-        input_text_prompt=args.input_text_prompt,
-        output_text_prompt=args.output_text_prompt,
+        context_prompt=args.context_prompt,
+        user_prompt=args.user_prompt,
+        assistant_prompt=args.assistant_prompt,
         output_dir=args.output_dir,
         train_set_filename=args.train_set_filename,
         val_set_filename=args.val_set_filename,
