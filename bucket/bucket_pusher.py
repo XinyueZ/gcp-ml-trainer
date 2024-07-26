@@ -17,7 +17,7 @@ from base import Base
 from utils import get_credential, get_key_filepath
 
 
-class DatasetBucketPusher(Base):
+class BucketPusher(Base):
 
     def __init__(
         self,
@@ -26,12 +26,14 @@ class DatasetBucketPusher(Base):
         bucket_name: str,
         credentials: Credentials,
         file_fullpath: str,  # local location of the object to push
+        predefined_acl: str = "projectPrivate",  # https://cloud.google.com/storage/docs/access-control/lists#predefined-acl
     ):
         self.credentials = credentials
         self.project_id = project_id
         self.location = location
         self.bucket_name = bucket_name
         self.file_fullpath = file_fullpath
+        self.predefined_acl = predefined_acl
 
     def _create_bucket(self) -> storage.Bucket:
         storage_client = storage.Client(
@@ -41,7 +43,7 @@ class DatasetBucketPusher(Base):
         bucket = storage_client.lookup_bucket(self.bucket_name)
         if not bucket:
             bucket = storage_client.bucket(self.bucket_name)
-            bucket.create(location=self.location, predefined_acl="publicRead")
+            bucket.create(location=self.location, predefined_acl=self.predefined_acl)
         return bucket
 
     def _push2bucket(self):
@@ -59,19 +61,23 @@ class DatasetBucketPusher(Base):
 
 
 """
-python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
+python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --predefined_acl "projectPrivate" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-12:25:07:2024.jsonl \
-                     --bucket_name_postfix "train"
+                     --bucket_name_postfix "train" 
 
-python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
+python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --predefined_acl  "projectPrivate" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-12:25:07:2024.jsonl \
                      --bucket_name_postfix "val"
 
-python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
+python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --predefined_acl  "projectPrivate" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_train_wine_price-11:25:07:2024.jsonl \
                      --bucket_name_postfix "train"
 
-python dataset_bucket_pusher.py  --project_id "isochrone-isodistance" \
+python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --predefined_acl  "projectPrivate" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_val_wine_price-11:25:07:2024.jsonl \
                      --bucket_name_postfix "val"
 """
@@ -87,6 +93,14 @@ if __name__ == "__main__":
     parser.add_argument("--location", type=str, required=False, default="europe-west4")
     parser.add_argument("--file_fullpath", type=str, required=True)
     parser.add_argument("--bucket_name_postfix", type=str, required=True)
+    parser.add_argument(
+        "--predefined_acl",
+        type=str,
+        required=False,
+        default="projectPrivate",
+        help="https://cloud.google.com/storage/docs/access-control/lists#predefined-acl",
+    )
+
     args = parser.parse_args()
 
     buuid = uuid.uuid4()
@@ -102,12 +116,13 @@ if __name__ == "__main__":
     credentials = get_credential(get_key_filepath(key_dir=args.key_dir))
     ic(f"Credentials: {credentials}")
 
-    dp = DatasetBucketPusher(
-        args.project_id,
-        args.location,
-        bucket_name,
-        credentials,
-        args.file_fullpath,
+    dp = BucketPusher(
+        project_id=args.project_id,
+        location=args.location,
+        bucket_name=bucket_name,
+        credentials=credentials,
+        file_fullpath=args.file_fullpath,
+        predefined_acl=args.predefined_acl,
     )
     blob = dp.apply()
     ic(blob)
