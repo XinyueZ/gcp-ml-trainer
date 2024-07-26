@@ -1,4 +1,13 @@
-# %%
+# Tuning page: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning?hl=en
+# text tune pipeline：https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0
+# chat tune pipeline：https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0
+# set format: https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-code-models?hl=zh-cn
+#             https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning-about?hl=zh-cn
+# model list: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions
+# price: https://cloud.google.com/vertex-ai/generative-ai/pricing
+# config for training: https://cloud.google.com/vertex-ai/docs/training/configure-compute
+# llm = "gemini-1.0-pro-002"  # ? not yet avaiable at gcp: "gemini-1.5-flash"
+
 import argparse
 import os
 import sys
@@ -7,6 +16,7 @@ from typing import Literal
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import PipelineJob
+from google.oauth2.service_account import Credentials
 from icecream import ic
 from kfp import compiler, dsl
 from rich.pretty import pprint as pp
@@ -25,6 +35,7 @@ from utils import get_credential, get_datetime_now, get_key_filepath
 class FineTuner(Base):
     job: PipelineJob
     pipeline_arguments: dict
+    credentials: Credentials
 
     def __init__(
         self,
@@ -42,6 +53,7 @@ class FineTuner(Base):
         key_dir: str,
         pipeline_root: str,
         enable_caching: bool = True,
+        credentials: Credentials = None,
     ):
         self.pipeline_arguments = {
             "model_display_name": model_display_name,
@@ -64,6 +76,7 @@ class FineTuner(Base):
             enable_caching=enable_caching,
             display_name=model_display_name,
             location=location,
+            credentials=credentials,
         )
 
     def apply(self):
@@ -82,10 +95,10 @@ python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-002" 
                     --llm "gemini-1.0-pro-002" \
                     --accelerator_type "TPU" \
                     --kfp_template_path "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0" \
-                    --dataset_uri "gs://isochrone-isodistance-ff943708-train//teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-21:24:07:2024.jsonl" \
+                    --dataset_uri "gs://isochrone-isodistance-bf735bfd-train/gemini_chat_ft_train_wine_price-14:25:07:2024.jsonl" \
                     --training_steps 1 \
                     --evaluation_interval 1 \
-                    --evaluation_data_uri "gs://isochrone-isodistance-f609bba6-val//teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-21:24:07:2024.jsonl" \
+                    --evaluation_data_uri "gs://isochrone-isodistance-19d16132-val/gemini_chat_ft_val_wine_price-14:25:07:2024.jsonl" \
                     --pipeline_root "gs://awesome-ml-ai/" \
                     --enable_caching 1 \
                     --model_mode "chat" 
@@ -96,23 +109,15 @@ python trainer.py   --model_display_name "gcp_ft_wine_price_text-bison@001" \
                     --llm "text-bison@001" \
                     --accelerator_type "GPU" \
                     --kfp_template_path "https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0" \
-                    --dataset_uri "https://storage.googleapis.com/isochrone-isodistance-2a32a7a6-train//teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison%40001_text_ft_train_wine_price-11%3A25%3A07%3A2024.jsonl" \
+                    --dataset_uri "gs://isochrone-isodistance-53f0175b-train/text-bison@001_text_ft_train_wine_price-14:25:07:2024.jsonl" \
                     --training_steps 1 \
                     --evaluation_interval 1 \
-                    --evaluation_data_uri "https://storage.googleapis.com/isochrone-isodistance-14d6af55-val//teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison%40001_text_ft_val_wine_price-11%3A25%3A07%3A2024.jsonl" \
+                    --evaluation_data_uri "gs://isochrone-isodistance-fbd74de3-val/text-bison@001_text_ft_val_wine_price-14:25:07:2024.jsonl" \
                     --pipeline_root "gs://awesome-ml-ai/" \
                     --enable_caching 1 \
                     --model_mode "text" 
 """
 if __name__ == "__main__":
-    # Tuning page: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning?hl=en
-    # text tune pipeline：https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-model/v2.0.0
-    # chat tune pipeline：https://us-kfp.pkg.dev/ml-pipeline/large-language-model-pipelines/tune-large-chat-model/v3.0.0
-    # doc: https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-code-models?hl=zh-cn
-    # model list: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions
-    # price: https://cloud.google.com/vertex-ai/generative-ai/pricing
-    # llm = "gemini-1.0-pro-002"  # ? not yet avaiable at gcp: "gemini-1.5-flash"
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
