@@ -6,8 +6,8 @@ from subprocess import PIPE, CompletedProcess, Popen, run
 
 import wine_price_chat_bison_dataset_processor
 import wine_price_gemini_chat_dataset_processor
-import wine_price_text_bison_dataset_processor
 import wine_price_gemma_dataset_processor
+import wine_price_text_bison_dataset_processor
 from icecream import ic
 from rich.pretty import pprint as pp
 
@@ -144,10 +144,10 @@ def create_dataset(
 
 
 """
-python wine_price_data_pipe.py --model_name gemini-chat
-python wine_price_data_pipe.py --model_name gemma
-python wine_price_data_pipe.py --model_name chat-bison
-python wine_price_data_pipe.py --model_name text-bison
+python wine_price_data_pipe.py --model_name "gemini-chat" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate"
+python wine_price_data_pipe.py --model_name "gemma" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate"
+python wine_price_data_pipe.py --model_name "chat-bison" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate"
+python wine_price_data_pipe.py --model_name "text-bison" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate"
 """
 if __name__ == "__main__":
     # never changed
@@ -168,6 +168,18 @@ if __name__ == "__main__":
             "chat-bison",
             "text-bison",
         ],
+    )
+    parser.add_argument(
+        "--project_id",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
+        "--predefined_acl",
+        type=str,
+        required=False,
+        default="projectPrivate",
+        help="https://cloud.google.com/storage/docs/access-control/lists#predefined-acl",
     )
     parser.add_argument(
         "--num_data_to_use",
@@ -198,17 +210,19 @@ if __name__ == "__main__":
     pusher_dir = os.path.join(this_file_dir_parent_dir, "bucket")
     pusher_cmd = os.path.join(pusher_dir, "bucket_pusher.py")
     os.system(
-        "python {}  --project_id isochrone-isodistance "
-        "--file_fullpath {} --bucket_name_postfix {}_train".format(
+        "python {}  --project_id {} --predefined_acl {} --file_fullpath {} --bucket_name_postfix {}_train".format(
             pusher_cmd,
+            args.project_id,
+            args.predefined_acl,
             train_set_filefullpath,
             args.model_name,
         )
     )
     os.system(
-        "python {}  --project_id isochrone-isodistance "
-        "--file_fullpath {} --bucket_name_postfix {}_val".format(
+        "python {}  --project_id {} --predefined_acl {} --file_fullpath {} --bucket_name_postfix {}_val".format(
             pusher_cmd,
+            args.project_id,
+            args.predefined_acl,
             val_set_filefullpath,
             args.model_name,
         )
