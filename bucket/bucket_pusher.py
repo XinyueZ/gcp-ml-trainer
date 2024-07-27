@@ -87,6 +87,7 @@ if __name__ == "__main__":
         "--key_dir",
         type=str,
         required=False,
+        help="Set 'OAuth2' or nothing then it is a path of the dir of service account key json.",
         default=os.path.join(this_file_dir_parent_dir, "keys"),
     )
     parser.add_argument("--project_id", type=str, required=True)
@@ -113,8 +114,10 @@ if __name__ == "__main__":
     )
     ic(bucket_name)
 
-    credentials = get_credential(get_key_filepath(key_dir=args.key_dir))
-    ic(f"Credentials: {credentials}")
+    credentials = None
+    if args.key_dir != "OAuth2":
+        credentials = get_credential(get_key_filepath(key_dir=args.key_dir))
+        ic(f"Credentials: {credentials}")
 
     dp = BucketPusher(
         project_id=args.project_id,
