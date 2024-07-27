@@ -48,6 +48,18 @@ class BaseProcessor(Base):
             output_dir, val_set_output_filename
         )
 
+    def create_insturct_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        df["input_text"] = self.apply_input_text_prompt(df)
+        df["output_text"] = self.apply_output_text_prompt(df)
+
+        return df
+
+    def apply_input_text_prompt(self, df: pd.DataFrame) -> pd.Series | pd.DataFrame:
+        raise NotImplementedError
+
+    def apply_output_text_prompt(self, df: pd.DataFrame) -> pd.Series | pd.DataFrame:
+        raise NotImplementedError
+
     def create_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         raise NotImplementedError
 
@@ -62,6 +74,52 @@ class BaseProcessor(Base):
     def release(self):
         del self.df_train
         del self.df_val
+
+
+class GemmaCausalProcessor(BaseProcessor):
+    def __init__(
+        self,
+        output_dir: str,
+        train_set_filename: str,
+        val_set_filename: str,
+    ):
+        super().__init__(
+            model_name="gemma-causal",
+            mode="text",
+            output_dir=output_dir,
+            train_set_filename=train_set_filename,
+            val_set_filename=val_set_filename,
+        )
+
+    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+        """
+        # create instruction tuned model with format, every line is a json object like below:
+        https://www.kaggle.com/models/keras/gemma2
+        https://ai.google.dev/gemma/docs/formatting
+
+        start_of_turn_user = "<start_of_turn>user\n"
+        start_of_turn_model = "<start_of_turn>model\n"
+        end_of_turn = "<end_of_turn>\n"
+        prompt = start_of_turn_user + input_text + end_of_turn + start_of_turn_model + output_text + end_of_turn
+
+        ....
+        <start_of_turn>user
+        hello<end_of_turn>
+        <start_of_turn>model
+        world<end_of_turn>
+        ....
+        """
+        cols = ["input_text", "output_text"]
+        start_of_turn_user = "<start_of_turn>user\n"
+        start_of_turn_model = "<start_of_turn>model\n"
+        end_of_turn = "<end_of_turn>\n"
+        with open(filefullpath, "w") as f:
+            df.apply(
+                lambda row: f.write(
+                    f'{start_of_turn_user}{row["input_text"]}{end_of_turn}{start_of_turn_model}{row["output_text"]}{end_of_turn}'
+                ),
+                axis=1,
+            )
 
 
 class TextBisonDatasetProcessor(BaseProcessor):

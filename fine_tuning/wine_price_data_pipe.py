@@ -7,6 +7,7 @@ from subprocess import PIPE, CompletedProcess, Popen, run
 import wine_price_chat_bison_dataset_processor
 import wine_price_gemini_chat_dataset_processor
 import wine_price_text_bison_dataset_processor
+import wine_price_gemma_dataset_processor
 from icecream import ic
 from rich.pretty import pprint as pp
 
@@ -25,17 +26,20 @@ def create_dataset(
     dataset_output_dir: str,
     train_set_filename: str,
     val_set_filename: str,
+    test_size=0.2,
+    random_state=42,
 ) -> CompletedProcess:
+
+    ic(
+        model_name,
+        data_url,
+        num_data_to_use,
+        dataset_output_dir,
+        train_set_filename,
+        val_set_filename,
+    )
     match model_name:
         case "gemini-chat":
-            ic(
-                model_name,
-                data_url,
-                num_data_to_use,
-                dataset_output_dir,
-                train_set_filename,
-                val_set_filename,
-            )
             cmd = [
                 "python",
                 "wine_price_gemini_chat_dataset_processor.py",
@@ -56,20 +60,35 @@ def create_dataset(
                 "--val_set_filename",
                 val_set_filename,
                 "--test_size",
-                "0.2",
+                str(test_size),
                 "--random_state",
-                "42",
+                str(random_state),
             ]
 
-        case "chat-bison":
-            ic(
-                model_name,
+        case "gemma":
+            cmd = [
+                "python",
+                "wine_price_gemma_dataset_processor.py",
+                "--csv_url",
                 data_url,
-                num_data_to_use,
+                "--num_data_to_use",
+                str(num_data_to_use),
+                "--user_prompt",
+                wine_price_gemma_dataset_processor.USER_PROMPT,
+                "--model_prompt",
+                wine_price_gemma_dataset_processor.MODEL_PROMPT,
+                "--output_dir",
                 dataset_output_dir,
+                "--train_set_filename",
                 train_set_filename,
+                "--val_set_filename",
                 val_set_filename,
-            )
+                "--test_size",
+                str(test_size),
+                "--random_state",
+                str(random_state),
+            ]
+        case "chat-bison":
             cmd = [
                 "python",
                 "wine_price_chat_bison_dataset_processor.py",
@@ -90,20 +109,12 @@ def create_dataset(
                 "--val_set_filename",
                 val_set_filename,
                 "--test_size",
-                "0.2",
+                str(test_size),
                 "--random_state",
-                "42",
+                str(random_state),
             ]
 
         case "text-bison":
-            ic(
-                model_name,
-                data_url,
-                num_data_to_use,
-                dataset_output_dir,
-                train_set_filename,
-                val_set_filename,
-            )
             cmd = [
                 "python",
                 "wine_price_text_bison_dataset_processor.py",
@@ -122,9 +133,9 @@ def create_dataset(
                 "--val_set_filename",
                 val_set_filename,
                 "--test_size",
-                "0.2",
+                str(test_size),
                 "--random_state",
-                "42",
+                str(random_state),
             ]
 
         case _:
@@ -134,6 +145,7 @@ def create_dataset(
 
 """
 python wine_price_data_pipe.py --model_name gemini-chat
+python wine_price_data_pipe.py --model_name gemma
 python wine_price_data_pipe.py --model_name chat-bison
 python wine_price_data_pipe.py --model_name text-bison
 """
@@ -152,6 +164,7 @@ if __name__ == "__main__":
         default="gemini-chat",
         choices=[
             "gemini-chat",
+            "gemma",
             "chat-bison",
             "text-bison",
         ],
