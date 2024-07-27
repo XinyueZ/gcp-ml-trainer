@@ -11,13 +11,16 @@ this_file_dir = os.path.dirname(os.path.abspath(__file__))
 this_file_dir_parent_dir = os.path.dirname(this_file_dir)
 sys.path.append(this_file_dir)
 sys.path.append(this_file_dir_parent_dir)
-from base import GemmaCausalProcessor
+from base import GemmaCausalDatasetProcessor
+from wine_process_base_dataset_processor import WinePriceBaseDatasetProcessor
 
 USER_PROMPT = """How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
 MODEL_PROMPT = """{0} US$"""
 
 
-class WinePriceGemmaDatasetProcessor(GemmaCausalProcessor):
+class WinePriceGemmaDatasetProcessor(
+    GemmaCausalDatasetProcessor, WinePriceBaseDatasetProcessor
+):
     def __init__(
         self,
         csv_url: str,
@@ -51,23 +54,6 @@ class WinePriceGemmaDatasetProcessor(GemmaCausalProcessor):
 
     def apply_output_text_prompt(self, df: pd.DataFrame) -> pd.Series | pd.DataFrame:
         return df.apply(lambda row: self.model_prompt.format(row["price"]), axis=1)
-
-    def create_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
-        df = pd.read_csv(self.csv_url)
-        df = df.dropna(how="any")
-        df = df.loc[(df != "NaN").any(axis=1)]
-        df = df.loc[:, ["province", "country", "description", "price"]]
-        df["price"] = df["price"].astype(str)
-        df = df.reset_index(drop=True)
-        df = df[df["country"] == "US"]
-        df = df.head(self.num_data_to_use)
-        train_df, eval_df = train_test_split(
-            df, test_size=self.test_size, random_state=self.random_state
-        )
-        train_df = self.create_insturct_columns(train_df)
-        eval_df = self.create_insturct_columns(eval_df)
-        ic(len(train_df), len(eval_df))
-        return train_df, eval_df
 
 
 """

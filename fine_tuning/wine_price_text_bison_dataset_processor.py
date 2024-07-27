@@ -12,12 +12,15 @@ this_file_dir_parent_dir = os.path.dirname(this_file_dir)
 sys.path.append(this_file_dir)
 sys.path.append(this_file_dir_parent_dir)
 from base import TextBisonDatasetProcessor
+from wine_process_base_dataset_processor import WinePriceBaseDatasetProcessor
 
-INPUT_TEXT_PROMPT = """You are a super assistant that will be asked to help with the wine price prediction: How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
+INPUT_TEXT_PROMPT = """How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
 OUTPUT_TEXT_PROMPT = """{0} US$"""
 
 
-class WinePriceTextBisonDatasetProcessor(TextBisonDatasetProcessor):
+class WinePriceTextBisonDatasetProcessor(
+    TextBisonDatasetProcessor, WinePriceBaseDatasetProcessor
+):
     def __init__(
         self,
         csv_url: str,
@@ -41,34 +44,19 @@ class WinePriceTextBisonDatasetProcessor(TextBisonDatasetProcessor):
         self.test_size = test_size
         self.random_state = random_state
 
-    def _create_insturct_columns(self, df: pd.DataFrame) -> pd.DataFrame:
-        df["input_text"] = df.apply(
+    def apply_input_text_prompt(self, df: pd.DataFrame) -> pd.Series | pd.DataFrame:
+        return df.apply(
             lambda row: self.input_text_prompt.format(
                 row["province"], row["country"], row["description"]
             ),
             axis=1,
         )
-        df["output_text"] = df.apply(
+
+    def apply_output_text_prompt(self, df: pd.DataFrame) -> pd.Series | pd.DataFrame:
+        return df.apply(
             lambda row: self.output_text_prompt.format(row["price"]), axis=1
         )
-        return df
 
-    def create_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
-        df = pd.read_csv(self.csv_url)
-        df = df.dropna(how="any")
-        df = df.loc[(df != "NaN").any(axis=1)]
-        df = df.loc[:, ["province", "country", "description", "price"]]
-        df["price"] = df["price"].astype(str)
-        df = df.reset_index(drop=True)
-        df = df[df["country"] == "US"]
-        df = df.head(self.num_data_to_use)
-        train_df, eval_df = train_test_split(
-            df, test_size=self.test_size, random_state=self.random_state
-        )
-        train_df = self._create_insturct_columns(train_df)
-        eval_df = self._create_insturct_columns(eval_df)
-        ic(len(train_df), len(eval_df))
-        return train_df, eval_df
 
 """
 python wine_price_text_bison_dataset_processor.py \

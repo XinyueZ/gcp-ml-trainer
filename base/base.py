@@ -15,7 +15,7 @@ class Base:
         raise NotImplementedError
 
 
-class BaseProcessor(Base):
+class BaseDatasetProcessor(Base):
     df_train: pd.DataFrame
     df_val: pd.DataFrame
     train_set_output_filefullpath: str
@@ -76,7 +76,7 @@ class BaseProcessor(Base):
         del self.df_val
 
 
-class GemmaCausalProcessor(BaseProcessor):
+class GemmaCausalDatasetProcessor(BaseDatasetProcessor):
     def __init__(
         self,
         output_dir: str,
@@ -84,7 +84,7 @@ class GemmaCausalProcessor(BaseProcessor):
         val_set_filename: str,
     ):
         super().__init__(
-            model_name="gemma-causal",
+            model_name="gemma",
             mode="text",
             output_dir=output_dir,
             train_set_filename=train_set_filename,
@@ -122,7 +122,7 @@ class GemmaCausalProcessor(BaseProcessor):
             )
 
 
-class TextBisonDatasetProcessor(BaseProcessor):
+class TextBisonDatasetProcessor(BaseDatasetProcessor):
     def __init__(
         self,
         output_dir: str,
@@ -151,7 +151,7 @@ class TextBisonDatasetProcessor(BaseProcessor):
             f.write(tune_jsonl)
 
 
-class ChatBisonDatasetProcessor(BaseProcessor):
+class ChatBisonDatasetProcessor(BaseDatasetProcessor):
     def __init__(
         self,
         context_prompt: str,
@@ -198,7 +198,7 @@ class ChatBisonDatasetProcessor(BaseProcessor):
             )
 
 
-class GeminiChatDatasetProcessor(BaseProcessor):
+class GeminiChatDatasetProcessor(BaseDatasetProcessor):
     def __init__(
         self,
         sys_prompt: str,
