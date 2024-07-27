@@ -7,14 +7,14 @@ from icecream import ic
 from rich.pretty import pprint as pp
 from sklearn.model_selection import train_test_split
 from wine_price_base_dataset_processor import WinePriceBaseDatasetProcessor
-from base import GemmaCausalDatasetProcessor
+from base import GemmaInstructDatasetProcessor
 
 USER_PROMPT = """How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'"""
 MODEL_PROMPT = """{0} US$"""
 
 
-class WinePriceGemmaDatasetProcessor(
-    GemmaCausalDatasetProcessor, WinePriceBaseDatasetProcessor
+class WinePriceGemmaInstructDatasetProcessor(
+    GemmaInstructDatasetProcessor, WinePriceBaseDatasetProcessor
 ):
     def __init__(
         self,
@@ -52,7 +52,7 @@ class WinePriceGemmaDatasetProcessor(
 
 
 """
-python wine_price_gemma_dataset_processor.py \
+python wine_price_gemma_instruct_dataset_processor.py \
     --csv_url "https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ" \
     --num_data_to_use 1000 \
     --user_prompt "How much is the price of certain wine? Here is the information about the wine: The wine produced in the province of {0}, {1}, is described as '{2}'" \
@@ -66,7 +66,7 @@ python wine_price_gemma_dataset_processor.py \
 to subprocess call:
 subprocess.run([
     "python",
-    "wine_price_gemma_dataset_processor.py",
+    "wine_price_gemma_instruct_dataset_processor.py",
     "--csv_url",
     "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/wine/wine.csv",
     "--num_data_to_use",
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     parser.add_argument("--random_state", type=int, default=42)
     args = parser.parse_args()
 
-    data_proc = WinePriceGemmaDatasetProcessor(
+    data_proc = WinePriceGemmaInstructDatasetProcessor(
         args.csv_url,
         args.num_data_to_use,
         args.user_prompt,

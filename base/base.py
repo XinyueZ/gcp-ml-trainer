@@ -76,7 +76,7 @@ class BaseDatasetProcessor(Base):
         del self.df_val
 
 
-class GemmaCausalDatasetProcessor(BaseDatasetProcessor):
+class GemmaInstructDatasetProcessor(BaseDatasetProcessor):
     def __init__(
         self,
         output_dir: str,
@@ -84,7 +84,7 @@ class GemmaCausalDatasetProcessor(BaseDatasetProcessor):
         val_set_filename: str,
     ):
         super().__init__(
-            model_name="gemma",
+            model_name="gemma-instruct",
             mode="text",
             output_dir=output_dir,
             train_set_filename=train_set_filename,

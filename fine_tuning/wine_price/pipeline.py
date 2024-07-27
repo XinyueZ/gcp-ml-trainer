@@ -5,7 +5,7 @@ from subprocess import PIPE, CompletedProcess, Popen, run
 
 import wine_price_chat_bison_dataset_processor
 import wine_price_gemini_chat_dataset_processor
-import wine_price_gemma_dataset_processor
+import wine_price_gemma_instruct_dataset_processor
 import wine_price_text_bison_dataset_processor
 from icecream import ic
 from rich.pretty import pprint as pp
@@ -58,18 +58,18 @@ def create_dataset(
                 str(random_state),
             ]
 
-        case "gemma":
+        case "gemma-instruct":
             cmd = [
                 "python",
-                "wine_price_gemma_dataset_processor.py",
+                "wine_price_gemma_instruct_dataset_processor.py",
                 "--csv_url",
                 data_url,
                 "--num_data_to_use",
                 str(num_data_to_use),
                 "--user_prompt",
-                wine_price_gemma_dataset_processor.USER_PROMPT,
+                wine_price_gemma_instruct_dataset_processor.USER_PROMPT,
                 "--model_prompt",
-                wine_price_gemma_dataset_processor.MODEL_PROMPT,
+                wine_price_gemma_instruct_dataset_processor.MODEL_PROMPT,
                 "--output_dir",
                 dataset_output_dir,
                 "--train_set_filename",
@@ -138,7 +138,7 @@ def create_dataset(
 
 """
 python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "gemini-chat"
-python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "gemma"
+python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "gemma-instruct"
 python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "chat-bison"  
 python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "text-bison"  
 """
@@ -157,7 +157,7 @@ if __name__ == "__main__":
         default="gemini-chat",
         choices=[
             "gemini-chat",
-            "gemma",
+            "gemma-instruct",
             "chat-bison",
             "text-bison",
         ],
