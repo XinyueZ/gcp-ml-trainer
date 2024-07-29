@@ -62,22 +62,30 @@ class BucketPusher(Base):
 
 """
 python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --key_dir "OAuth2" \
                      --predefined_acl "projectPrivate" \
+                     --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-12:25:07:2024.jsonl \
                      --bucket_name_postfix "train" 
 
 python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --key_dir "OAuth2" \
                      --predefined_acl  "projectPrivate" \
+                     --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-12:25:07:2024.jsonl \
                      --bucket_name_postfix "val"
 
 python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --key_dir "OAuth2" \
                      --predefined_acl  "projectPrivate" \
+                     --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_train_wine_price-11:25:07:2024.jsonl \
                      --bucket_name_postfix "train"
 
 python bucket_pusher.py  --project_id "isochrone-isodistance" \
+                     --key_dir "OAuth2" \
                      --predefined_acl  "projectPrivate" \
+                     --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_val_wine_price-11:25:07:2024.jsonl \
                      --bucket_name_postfix "val"
 """
@@ -91,7 +99,7 @@ if __name__ == "__main__":
         default=os.path.join(this_file_dir_parent_dir, "keys"),
     )
     parser.add_argument("--project_id", type=str, required=True)
-    parser.add_argument("--location", type=str, required=False, default="europe-west4")
+    parser.add_argument("--location", type=str, required=False, default="europe-west1")
     parser.add_argument("--file_fullpath", type=str, required=True)
     parser.add_argument("--bucket_name_postfix", type=str, required=True)
     parser.add_argument(

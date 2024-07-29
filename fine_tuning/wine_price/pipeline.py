@@ -137,12 +137,14 @@ def create_dataset(
 
 
 """
-python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "gemini-chat"
-python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "gemma-instruct"
-python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "chat-bison"  
-python pipeline.py --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --model_name "text-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "gemini-chat"
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "gemma-instruct"
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "chat-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "text-bison"  
 """
 if __name__ == "__main__":
+    this_file_dir = os.path.dirname(os.path.abspath(__file__))
+    this_file_root_dir = os.path.dirname(os.path.dirname(this_file_dir))
     # never changed
     tsmp = get_datetime_now()
     train_set_filename = "ft_train_wine_price-{}.jsonl".format(tsmp)
@@ -151,6 +153,13 @@ if __name__ == "__main__":
 
     # args
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--key_dir",
+        type=str,
+        required=False,
+        help="Set 'OAuth2' or it is a path of the dir of service account key json.",
+        default=os.path.join(this_file_root_dir, "keys"),
+    )
     parser.add_argument(
         "--model_name",
         type=str,
@@ -180,12 +189,17 @@ if __name__ == "__main__":
         required=False,
         default=1000,
     )
+    parser.add_argument(
+        "--location",
+        type=str,
+        required=False,
+        default="europe-west1",
+    )
+    
     args = parser.parse_args()
 
     # create data for train and val sets, dfferent project is here a little bit different
     data_url = "https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ"
-    this_file_dir = os.path.dirname(os.path.abspath(__file__))
-    this_file_root_dir = os.path.dirname(os.path.dirname(this_file_dir))
     dataset_output_dir = os.path.join(this_file_root_dir, "tmp")
     result = create_dataset(
         model_name=args.model_name,
@@ -205,20 +219,24 @@ if __name__ == "__main__":
     pusher_dir = os.path.join(this_file_root_dir, "bucket")
     pusher_cmd = os.path.join(pusher_dir, "bucket_pusher.py")
     os.system(
-        "python {}  --project_id {} --predefined_acl {} --file_fullpath {} --bucket_name_postfix {}_train".format(
+        "python {} --key_dir {} --project_id {} --predefined_acl {} --file_fullpath {} --location {} --bucket_name_postfix {}_train".format(
             pusher_cmd,
+            args.key_dir,
             args.project_id,
             args.predefined_acl,
             train_set_filefullpath,
+            args.location,
             args.model_name,
         )
     )
     os.system(
-        "python {}  --project_id {} --predefined_acl {} --file_fullpath {} --bucket_name_postfix {}_val".format(
+        "python {}  --key_dir {} --project_id {} --predefined_acl {} --file_fullpath {} --location {} --bucket_name_postfix {}_val".format(
             pusher_cmd,
+            args.key_dir,
             args.project_id,
             args.predefined_acl,
             val_set_filefullpath,
+            args.location,
             args.model_name,
         )
     )
