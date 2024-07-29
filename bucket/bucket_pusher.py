@@ -24,6 +24,7 @@ class BucketPusher(Base):
         project_id: str,
         location: str,
         bucket_name: str,
+        cate: str,
         credentials: Credentials,
         file_fullpath: str,  # local location of the object to push
         predefined_acl: str = "projectPrivate",  # https://cloud.google.com/storage/docs/access-control/lists#predefined-acl
@@ -32,6 +33,7 @@ class BucketPusher(Base):
         self.project_id = project_id
         self.location = location
         self.bucket_name = bucket_name
+        self.cate = cate
         self.file_fullpath = file_fullpath
         self.predefined_acl = predefined_acl
 
@@ -48,7 +50,9 @@ class BucketPusher(Base):
 
     def _push2bucket(self):
         self.bucket = self._create_bucket()
-        self.blob = self.bucket.blob(os.path.basename(self.file_fullpath))
+        self.blob = self.bucket.blob(
+            os.path.join(self.cate, os.path.basename(self.file_fullpath))
+        )
         self.blob.upload_from_filename(self.file_fullpath)
 
     def apply(self) -> storage.Blob:
@@ -66,28 +70,28 @@ python bucket_pusher.py  --project_id "isochrone-isodistance" \
                      --predefined_acl "projectPrivate" \
                      --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_train_wine_price-12:25:07:2024.jsonl \
-                     --bucket_name_postfix "train" 
+                     --cate "train" 
 
 python bucket_pusher.py  --project_id "isochrone-isodistance" \
                      --key_dir "OAuth2" \
                      --predefined_acl  "projectPrivate" \
                      --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/gemini_chat_ft_val_wine_price-12:25:07:2024.jsonl \
-                     --bucket_name_postfix "val"
+                     --cate "val"
 
 python bucket_pusher.py  --project_id "isochrone-isodistance" \
                      --key_dir "OAuth2" \
                      --predefined_acl  "projectPrivate" \
                      --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_train_wine_price-11:25:07:2024.jsonl \
-                     --bucket_name_postfix "train"
+                     --cate "train"
 
 python bucket_pusher.py  --project_id "isochrone-isodistance" \
                      --key_dir "OAuth2" \
                      --predefined_acl  "projectPrivate" \
                      --location "europe-west1" \
                      --file_fullpath /teamspace/studios/this_studio/gcp-ml-trainer/tmp/text-bison@001_text_ft_val_wine_price-11:25:07:2024.jsonl \
-                     --bucket_name_postfix "val"
+                     --cate "val"
 """
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -101,7 +105,8 @@ if __name__ == "__main__":
     parser.add_argument("--project_id", type=str, required=True)
     parser.add_argument("--location", type=str, required=False, default="europe-west1")
     parser.add_argument("--file_fullpath", type=str, required=True)
-    parser.add_argument("--bucket_name_postfix", type=str, required=True)
+    parser.add_argument("--bucket_name", type=str, required=False)
+    parser.add_argument("--cate", type=str, required=True)
     parser.add_argument(
         "--predefined_acl",
         type=str,
@@ -112,14 +117,16 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    buuid = uuid.uuid4()
-    buuid = str(buuid)[:8]
-    ic(buuid)
-    bucket_name = "{0}-{1}-{2}".format(
-        args.project_id,
-        buuid,
-        args.bucket_name_postfix,
-    )
+    if args.bucket_name:
+        bucket_name = args.bucket_name
+    else:
+        buuid = uuid.uuid4()
+        buuid = str(buuid)[:8]
+        ic(buuid)
+        bucket_name = "{0}-{1}".format(
+            args.project_id,
+            buuid,
+        )
     ic(bucket_name)
 
     credentials = None
@@ -131,6 +138,7 @@ if __name__ == "__main__":
         project_id=args.project_id,
         location=args.location,
         bucket_name=bucket_name,
+        cate=args.cate,
         credentials=credentials,
         file_fullpath=args.file_fullpath,
         predefined_acl=args.predefined_acl,

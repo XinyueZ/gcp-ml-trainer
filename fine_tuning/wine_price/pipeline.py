@@ -195,7 +195,7 @@ if __name__ == "__main__":
         required=False,
         default="europe-west1",
     )
-    
+    parser.add_argument("--bucket_name", type=str, required=False)
     args = parser.parse_args()
 
     # create data for train and val sets, dfferent project is here a little bit different
@@ -218,25 +218,26 @@ if __name__ == "__main__":
     # push to gcp bucket, should never be changed
     pusher_dir = os.path.join(this_file_root_dir, "bucket")
     pusher_cmd = os.path.join(pusher_dir, "bucket_pusher.py")
-    os.system(
-        "python {} --key_dir {} --project_id {} --predefined_acl {} --file_fullpath {} --location {} --bucket_name_postfix {}_train".format(
-            pusher_cmd,
-            args.key_dir,
-            args.project_id,
-            args.predefined_acl,
-            train_set_filefullpath,
-            args.location,
-            args.model_name,
-        )
+    train_cmd = "python {} --key_dir {} --project_id {} --predefined_acl {} --file_fullpath {} --location {} --cate train ".format(
+        pusher_cmd,
+        args.key_dir,
+        args.project_id,
+        args.predefined_acl,
+        train_set_filefullpath,
+        args.location,
     )
-    os.system(
-        "python {}  --key_dir {} --project_id {} --predefined_acl {} --file_fullpath {} --location {} --bucket_name_postfix {}_val".format(
-            pusher_cmd,
-            args.key_dir,
-            args.project_id,
-            args.predefined_acl,
-            val_set_filefullpath,
-            args.location,
-            args.model_name,
-        )
+    if args.bucket_name:
+        train_cmd += "--bucket_name {}".format(args.bucket_name)
+    os.system(train_cmd)
+
+    val_cmd = "python {}  --key_dir {} --project_id {} --predefined_acl {} --file_fullpath {} --location {} --cate val ".format(
+        pusher_cmd,
+        args.key_dir,
+        args.project_id,
+        args.predefined_acl,
+        val_set_filefullpath,
+        args.location,
     )
+    if args.bucket_name:
+        val_cmd += "--bucket_name {}".format(args.bucket_name)
+    os.system(val_cmd)
