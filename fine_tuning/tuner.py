@@ -89,8 +89,9 @@ class FineTuner(Base):
 
 """ 
 # fine tune Gemini chat
-python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-002" \
-                    --location "europe-west4" \
+python tuner.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-002" \
+                    --key_dir OAuth2 \
+                    --location "europe-west1" \
                     --project_id "isochrone-isodistance" \
                     --llm "gemini-1.0-pro-002" \
                     --accelerator_type "TPU" \
@@ -103,8 +104,9 @@ python trainer.py   --model_display_name "gcp_ft_wine_price_gemini-1.0-pro-002" 
                     --enable_caching 1 \
                     --model_mode "chat" 
 # fine tune text bison
-python trainer.py   --model_display_name "gcp_ft_wine_price_text-bison@001" \
-                    --location "europe-west4" \
+python tuner.py   --model_display_name "gcp_ft_wine_price_text-bison@001" \
+                    --key_dir OAuth2 \
+                    --location "europe-west1" \
                     --project_id "isochrone-isodistance" \
                     --llm "text-bison@001" \
                     --accelerator_type "GPU" \
@@ -128,7 +130,7 @@ if __name__ == "__main__":
         default=os.path.join(this_file_dir_parent_dir, "keys"),
     )
     parser.add_argument("--model_display_name", type=str, required=True)
-    parser.add_argument("--location", type=str, required=False, default="europe-west4")
+    parser.add_argument("--location", type=str, required=False, default="europe-west1")
     parser.add_argument("--project_id", type=str, required=True)
     parser.add_argument("--training_steps", type=int, required=False, default=1)
     parser.add_argument("--llm", type=str, required=False, default="gemini-1.0-pro-002")
