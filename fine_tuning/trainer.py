@@ -124,7 +124,7 @@ if __name__ == "__main__":
         "--key_dir",
         type=str,
         required=False,
-        help="Set 'OAuth2' or nothing then it is a path of the dir of service account key json.",
+        help="Set 'OAuth2' or it is a path of the dir of service account key json.",
         default=os.path.join(this_file_dir_parent_dir, "keys"),
     )
     parser.add_argument("--model_display_name", type=str, required=True)
