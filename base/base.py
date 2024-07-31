@@ -246,3 +246,35 @@ class GeminiChatDatasetProcessor(BaseDatasetProcessor):
                 ),
                 axis=1,
             )
+
+
+class AgentBuilderDatasetProcessor(BaseDatasetProcessor):
+    def __init__(
+        self,
+        output_dir: str,
+        train_set_filename: str,
+        val_set_filename: str,
+    ):
+        super().__init__(
+            model_name="google-agent-builder",
+            mode="text",
+            output_dir=output_dir,
+            train_set_filename=train_set_filename,
+            val_set_filename=val_set_filename,
+        )
+
+    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+        """
+        # create unstructed document and saved as txt file.
+        # Google Agent Builder dataset: https://cloud.google.com/generative-ai-app-builder/docs/prepare-data#unstructured
+        #
+        # content of "input_text"
+        # content of "output_text"
+        """
+        cols = ["input_text", "output_text"]
+        tune_jsonl = df[cols].to_json(orient="records", lines=True)
+        with open(filefullpath, "w") as f:
+            df.apply(
+                lambda row: f.write(f'{row["input_text"]}\n{row["output_text"]}\n\n'),
+                axis=1,
+            )

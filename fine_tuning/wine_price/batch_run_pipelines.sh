@@ -1,5 +1,6 @@
 #run 
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "gemini-chat"
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "gemma-instruct"
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "chat-bison"  
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "text-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "gemini-chat"
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "gemma-instruct"
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "chat-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "text-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.txt"   --base_val_set_filename "ft_val_wine_price-{}.txt"   --model_name "agent-builder"  

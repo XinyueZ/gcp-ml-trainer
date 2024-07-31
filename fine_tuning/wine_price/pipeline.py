@@ -3,6 +3,7 @@ import os
 import sys
 from subprocess import PIPE, CompletedProcess, Popen, run
 
+import wine_price_agent_builder_dataset_processor
 import wine_price_chat_bison_dataset_processor
 import wine_price_gemini_chat_dataset_processor
 import wine_price_gemma_instruct_dataset_processor
@@ -130,26 +131,44 @@ def create_dataset(
                 "--random_state",
                 str(random_state),
             ]
-
+        case "agent-builder":
+            cmd = [
+                "python",
+                "wine_price_agent_builder_dataset_processor.py",
+                "--csv_url",
+                data_url,
+                "--num_data_to_use",
+                str(num_data_to_use),
+                "--features_prompt",
+                wine_price_agent_builder_dataset_processor.FEATURES_PROMPT,
+                "--prediction_prompt",
+                wine_price_agent_builder_dataset_processor.PREDICTION_PROMPT,
+                "--output_dir",
+                dataset_output_dir,
+                "--train_set_filename",
+                train_set_filename,
+                "--val_set_filename",
+                val_set_filename,
+                "--test_size",
+                str(test_size),
+                "--random_state",
+                str(random_state),
+            ]
         case _:
             raise ValueError("model_name not found")
     return run(cmd, capture_output=True, text=True)
 
 
 """
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "gemini-chat"
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "gemma-instruct"
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "chat-bison"  
-python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --model_name "text-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "gemini-chat"
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "gemma-instruct"
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "chat-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.jsonl" --base_val_set_filename "ft_val_wine_price-{}.jsonl" --model_name "text-bison"  
+python pipeline.py --key_dir "OAuth2" --project_id "isochrone-isodistance" --predefined_acl "projectPrivate" --location "europe-west1" --base_train_set_filename "ft_train_wine_price-{}.txt"   --base_val_set_filename "ft_val_wine_price-{}.txt"   --model_name "agent-builder"  
 """
 if __name__ == "__main__":
     this_file_dir = os.path.dirname(os.path.abspath(__file__))
     this_file_root_dir = os.path.dirname(os.path.dirname(this_file_dir))
-    # never changed
-    tsmp = get_datetime_now()
-    train_set_filename = "ft_train_wine_price-{}.jsonl".format(tsmp)
-    val_set_filename = "ft_val_wine_price-{}.jsonl".format(tsmp)
-    ic(train_set_filename), ic(val_set_filename)
 
     # args
     parser = argparse.ArgumentParser()
@@ -169,6 +188,7 @@ if __name__ == "__main__":
             "gemma-instruct",
             "chat-bison",
             "text-bison",
+            "agent-builder",
         ],
     )
     parser.add_argument(
@@ -195,8 +215,16 @@ if __name__ == "__main__":
         required=False,
         default="europe-west1",
     )
+    parser.add_argument("--base_train_set_filename", type=str, required=True)
+    parser.add_argument("--base_val_set_filename", type=str, required=True)
+
     parser.add_argument("--bucket_name", type=str, required=False)
     args = parser.parse_args()
+
+    tsmp = get_datetime_now()
+    train_set_filename = args.base_train_set_filename.format(tsmp)
+    val_set_filename = args.base_val_set_filename.format(tsmp)
+    ic(train_set_filename), ic(val_set_filename)
 
     # create data for train and val sets, dfferent project is here a little bit different
     data_url = "https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ"
