@@ -256,7 +256,7 @@ class AgentBuilderDatasetProcessor(BaseDatasetProcessor):
         val_set_filename: str,
     ):
         super().__init__(
-            model_name="google-agent-builder",
+            model_name="agent-builder-unstruct",
             mode="text",
             output_dir=output_dir,
             train_set_filename=train_set_filename,
@@ -265,16 +265,46 @@ class AgentBuilderDatasetProcessor(BaseDatasetProcessor):
 
     def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
         """
-        # create unstructed document and saved as txt file.
-        # Google Agent Builder dataset: https://cloud.google.com/generative-ai-app-builder/docs/prepare-data#unstructured
+        # create unstructed text dataset as txt file.
+        # Google Agent Builder unstruct dataset (for agent app): https://cloud.google.com/generative-ai-app-builder/docs/prepare-data#unstructured
         #
         # content of "input_text"
         # content of "output_text"
         """
         cols = ["input_text", "output_text"]
-        tune_jsonl = df[cols].to_json(orient="records", lines=True)
         with open(filefullpath, "w") as f:
             df.apply(
                 lambda row: f.write(f'{row["input_text"]}\n{row["output_text"]}\n\n'),
+                axis=1,
+            )
+
+
+class DialogFlowDatasetProcessor(BaseDatasetProcessor):
+    def __init__(
+        self,
+        output_dir: str,
+        train_set_filename: str,
+        val_set_filename: str,
+    ):
+
+        super().__init__(
+            model_name="dialogflow-struct",
+            mode="chat",
+            output_dir=output_dir,
+            train_set_filename=train_set_filename,
+            val_set_filename=val_set_filename,
+        )
+
+    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+        """
+        # create structed CSV dataset.
+        # Google Agent Builder struct dataset (for dialogflow chat app): https://cloud.google.com/dialogflow/es/docs/how/knowledge-bases#supported-content
+        #
+        # two columns CSV file, no header, 1st column is "input_text", 2nd column is "output_text".
+        """
+        cols = ["input_text", "output_text"]
+        with open(filefullpath, "w") as f:
+            df.apply(
+                lambda row: f.write(f'"{row["input_text"]}",{row["output_text"]}\n'),
                 axis=1,
             )

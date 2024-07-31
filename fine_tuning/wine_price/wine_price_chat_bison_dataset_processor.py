@@ -57,7 +57,7 @@ class WinePriceChatBisonDatasetProcessor(
         return df.apply(lambda row: self.assistant_prompt.format(row["price"]), axis=1)
 
 
-"""Full args with \ for each arg input
+"""
 python wine_price_chat_bison_dataset_processor.py \
     --csv_url "https://raw.githubusercontent.com/XinyueZ/llm-fine-tune-wine-price/master/data/wine_data.csv?token=GHSAT0AAAAAACACNBHDKU2RTW5IGQJKCYJSZLPTWMQ" \
     --num_data_to_use 1000 \
