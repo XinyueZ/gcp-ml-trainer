@@ -298,12 +298,14 @@ class DialogFlowDatasetProcessor(BaseDatasetProcessor):
     def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
         """
         # create structed CSV dataset.
-        # Google Agent Builder struct dataset (for dialogflow chat app): https://cloud.google.com/dialogflow/es/docs/how/knowledge-bases#supported-content
+        # Google Agent Builder struct dataset (for dialogflow chat app): https://cloud.google.com/dialogflow/vertex/docs/concept/data-store#structured
         #
-        # two columns CSV file, no header, 1st column is "input_text", 2nd column is "output_text".
+        # two columns CSV file, 1st column is "input_text", 2nd column is "output_text".
         """
         cols = ["input_text", "output_text"]
         with open(filefullpath, "w") as f:
+            # header: question, answer
+            f.write("question,answer\n")
             df.apply(
                 lambda row: f.write(f'"{row["input_text"]}",{row["output_text"]}\n'),
                 axis=1,
