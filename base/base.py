@@ -63,13 +63,13 @@ class BaseDatasetProcessor(Base):
     def create_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         raise NotImplementedError
 
-    def create_jsonl(self, df: pd.DataFrame, filefullpath: str) -> str:
+    def create_record(self, df: pd.DataFrame, filefullpath: str) -> str:
         raise NotImplementedError
 
     def apply(self):
         self.df_train, self.df_val = self.create_df()
-        self.create_jsonl(self.df_train, self.train_set_output_filefullpath)
-        self.create_jsonl(self.df_val, self.val_set_output_filefullpath)
+        self.create_record(self.df_train, self.train_set_output_filefullpath)
+        self.create_record(self.df_val, self.val_set_output_filefullpath)
 
     def release(self):
         del self.df_train
@@ -91,7 +91,7 @@ class GemmaInstructDatasetProcessor(BaseDatasetProcessor):
             val_set_filename=val_set_filename,
         )
 
-    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+    def create_record(self, df: pd.DataFrame, filefullpath: str):
         """
         # create instruction tuned model with format, every line is a json object like below:
         https://www.kaggle.com/models/keras/gemma2
@@ -137,7 +137,7 @@ class TextBisonDatasetProcessor(BaseDatasetProcessor):
             val_set_filename=val_set_filename,
         )
 
-    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+    def create_record(self, df: pd.DataFrame, filefullpath: str):
         """
         # create json-lines, every line is a json object like below:
         https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-text-models-supervised?hl=en#chat
@@ -169,7 +169,7 @@ class ChatBisonDatasetProcessor(BaseDatasetProcessor):
 
         self.context_prompt = context_prompt
 
-    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+    def create_record(self, df: pd.DataFrame, filefullpath: str):
         """
         # create json-lines, every line is a json object like below:
         # Gemini fine-tune dataset rule: https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-text-models-supervised?hl=en#chat
@@ -216,7 +216,7 @@ class GeminiChatDatasetProcessor(BaseDatasetProcessor):
 
         self.sys_prompt = sys_prompt
 
-    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+    def create_record(self, df: pd.DataFrame, filefullpath: str):
         """
         # create json-lines, every line is a json object like below:
         # Gemini fine-tune dataset rule: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning-about
@@ -263,7 +263,7 @@ class AgentBuilderDatasetProcessor(BaseDatasetProcessor):
             val_set_filename=val_set_filename,
         )
 
-    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+    def create_record(self, df: pd.DataFrame, filefullpath: str):
         """
         # create unstructed text dataset as txt file.
         # Google Agent Builder unstruct dataset (for agent app): https://cloud.google.com/generative-ai-app-builder/docs/prepare-data#unstructured
@@ -295,7 +295,7 @@ class DialogFlowDatasetProcessor(BaseDatasetProcessor):
             val_set_filename=val_set_filename,
         )
 
-    def create_jsonl(self, df: pd.DataFrame, filefullpath: str):
+    def create_record(self, df: pd.DataFrame, filefullpath: str):
         """
         # create structed CSV dataset.
         # Google Agent Builder struct dataset (for dialogflow chat app): https://cloud.google.com/dialogflow/vertex/docs/concept/data-store#structured
