@@ -32,6 +32,19 @@ def hello_encrypting(params):
         Encrypt the message:
         curl http://localhost:8080\?message\=Hello\&\encrypting\=true
         curl http://localhost:8080\?message\=Hello
+
+    deploy:
+        local:
+            functions-framework --target hello_encrypting --source main.py
+        gcp:
+            gcloud functions deploy hello_encrypting \
+                    --gen2 \
+                    --runtime python312 \
+                    --trigger-http \
+                    --allow-unauthenticated \
+                    --entry-point "hello_encrypting" \
+                    --region "europe-west1" \
+                    --source .
     Args:
         params (dict): A dictionary containing the function parameters.
 
