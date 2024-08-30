@@ -25,12 +25,12 @@ def hello_encrypting(params):
     """
     Encrypts the given message if 'encrypting' parameter is set to 'true'.
 
-    call: 
+    call:
         Not encrypt the message:
         curl http://localhost:8080\?message\=Hello\&\encrypting\=false
-        
-        Encrypt the message:        
-        curl http://localhost:8080\?message\=Hello\&\encrypting\=true        
+
+        Encrypt the message:
+        curl http://localhost:8080\?message\=Hello\&\encrypting\=true
         curl http://localhost:8080\?message\=Hello
     Args:
         params (dict): A dictionary containing the function parameters.
@@ -41,7 +41,11 @@ def hello_encrypting(params):
     """
     message = params.args.get("message", "Hello, World!")
     is_encrypting = params.args.get("encrypting", "true").lower() == "true"
-    response_data = {"code": 200, "message": message, "encrypted": is_encrypting}
+    response_data = {
+        "code": 200,
+        "message": message,
+        "encrypted": is_encrypting,
+    }
     if not is_encrypting:
         return json.dumps(response_data)
     encrypted_data = encrypt_data(response_data)
