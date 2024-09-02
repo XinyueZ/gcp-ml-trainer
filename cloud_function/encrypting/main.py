@@ -15,9 +15,8 @@ def get_cipher_rsa():
 
 
 def encrypt_data(data):
-    response_json = json.dumps(data).encode(ENCODE)
     cipher_rsa = get_cipher_rsa()
-    encrypted_data = cipher_rsa.encrypt(response_json)
+    encrypted_data = cipher_rsa.encrypt(data)
     return base64.b64encode(encrypted_data).decode(ENCODE)
 
 
@@ -61,5 +60,7 @@ def hello_encrypting(params):
     }
     if not is_encrypting:
         return json.dumps(response_data)
-    encrypted_data = encrypt_data(response_data)
+    
+    json_data = json.dumps(response_data).encode(ENCODE)
+    encrypted_data = encrypt_data(json_data)
     return encrypted_data
