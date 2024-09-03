@@ -3,3 +3,4 @@ __pycache__
 tmp/
 *hermes*
 *private_key*
+api_read_bq-secured-encrypted-1/
